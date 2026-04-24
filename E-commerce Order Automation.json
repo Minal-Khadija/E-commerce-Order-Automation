@@ -1,0 +1,308 @@
+{
+  "name": "E-commerce Order Automation",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "Place Your Order",
+        "formDescription": "Fill in your details to complete your purchase",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Full Name"
+            },
+            {
+              "fieldLabel": "Email",
+              "fieldType": "email"
+            },
+            {
+              "fieldLabel": "Phone Number",
+              "fieldType": "number"
+            },
+            {
+              "fieldLabel": "Product Name"
+            },
+            {
+              "fieldLabel": "Quantity",
+              "fieldType": "number"
+            },
+            {
+              "fieldLabel": "Price per item",
+              "fieldType": "number"
+            },
+            {
+              "fieldLabel": "Shipping Address"
+            },
+            {
+              "fieldLabel": "Payment Method",
+              "fieldType": "dropdown",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Cash on Delivery"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.5,
+      "position": [
+        -320,
+        0
+      ],
+      "id": "4c7daa83-367a-480c-af27-872948e97ff7",
+      "name": "On form submission",
+      "webhookId": "1e37f5f9-d115-4887-b72f-4483b2812dd6"
+    },
+    {
+      "parameters": {
+        "schema": {
+          "__rl": true,
+          "value": "public",
+          "mode": "list",
+          "cachedResultName": "public"
+        },
+        "table": {
+          "__rl": true,
+          "value": "orders",
+          "mode": "list",
+          "cachedResultName": "orders"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "quantity": "={{ $json.Quantity }}",
+            "price_per_item": "={{ $json['Price per item'] }}",
+            "total_price": "={{ $json['Quantity'] * $json['Price per item'] }}",
+            "customer_name": "={{ $json['Full Name'] }}",
+            "email": "={{ $json.Email }}",
+            "product_name": "={{ $json['Product Name'] }}",
+            "phone": "={{ $json['Phone Number'] }}",
+            "shipping_address": "={{ $json['Shipping Address'] }}",
+            "payment_method": "={{ $json['Payment Method'] }}"
+          },
+          "matchingColumns": [
+            "id"
+          ],
+          "schema": [
+            {
+              "id": "id",
+              "displayName": "id",
+              "required": false,
+              "defaultMatch": true,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true,
+              "removed": true
+            },
+            {
+              "id": "customer_name",
+              "displayName": "customer_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "email",
+              "displayName": "email",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "phone",
+              "displayName": "phone",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "product_name",
+              "displayName": "product_name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "quantity",
+              "displayName": "quantity",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "price_per_item",
+              "displayName": "price_per_item",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "total_price",
+              "displayName": "total_price",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "shipping_address",
+              "displayName": "shipping_address",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "payment_method",
+              "displayName": "payment_method",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "order_date",
+              "displayName": "order_date",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "dateTime",
+              "canBeUsedToMatch": true,
+              "removed": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.postgres",
+      "typeVersion": 2.6,
+      "position": [
+        -48,
+        0
+      ],
+      "id": "65170298-3917-45f6-89d9-58cc82208d37",
+      "name": "Insert rows in a table",
+      "credentials": {
+        "postgres": {
+          "id": "S7Siq0g8NhltUvOo",
+          "name": "Postgres account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.email }}",
+        "subject": "=Order Confirmed —  {{ $json.product_name }}}}\n",
+        "message": "=<div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;\">\n\n  <div style=\"background-color: #4CAF50; padding: 20px; border-radius: 8px 8px 0 0; text-align: center;\">\n    <h1 style=\"color: white; margin: 0;\">Order Confirmed! ✅</h1>\n  </div>\n\n  <div style=\"padding: 20px;\">\n    <p style=\"font-size: 16px;\">Dear <strong>{{ $json.customer_name }}</strong>,</p>\n    <p>Thank you for your order! Here are your order details:</p>\n\n    <table style=\"width: 100%; border-collapse: collapse; margin: 20px 0;\">\n      <tr style=\"background-color: #f2f2f2;\">\n        <td style=\"padding: 10px; border: 1px solid #ddd;\"><strong>Product</strong></td>\n        <td style=\"padding: 10px; border: 1px solid #ddd;\">{{ $json.product_name }}</td>\n      </tr>\n      <tr>\n        <td style=\"padding: 10px; border: 1px solid #ddd;\"><strong>Quantity</strong></td>\n        <td style=\"padding: 10px; border: 1px solid #ddd;\">{{ $json.quantity }}</td>\n      </tr>\n      <tr style=\"background-color: #f2f2f2;\">\n        <td style=\"padding: 10px; border: 1px solid #ddd;\"><strong>Price per Item</strong></td>\n        <td style=\"padding: 10px; border: 1px solid #ddd;\">Rs.{{ $json.price_per_item }} </td>\n      </tr>\n      <tr>\n        <td style=\"padding: 10px; border: 1px solid #ddd;\"><strong>Total Price</strong></td>\n        <td style=\"padding: 10px; border: 1px solid #ddd; color: #4CAF50;\">\n          <strong>Rs. {{ $json.total_price }}</strong>\n        </td>\n      </tr>\n      <tr style=\"background-color: #f2f2f2;\">\n        <td style=\"padding: 10px; border: 1px solid #ddd;\"><strong>Payment Method</strong></td>\n        <td style=\"padding: 10px; border: 1px solid #ddd;\">{{ $json.payment_method }}</td>\n      </tr>\n      <tr>\n        <td style=\"padding: 10px; border: 1px solid #ddd;\"><strong>Shipping Address</strong></td>\n        <td style=\"padding: 10px; border: 1px solid #ddd;\">{{ $json.shipping_address }}</td>\n      </tr>\n    </table>\n\n    <p style=\"color: #888;\">We will process your order shortly and contact you for delivery.</p>\n\n    <div style=\"background-color: #f9f9f9; padding: 15px; border-radius: 5px; margin-top: 20px;\">\n      <p style=\"margin: 0; color: #555;\">📞 For any questions contact us at: <strong>minalkhadija1234@gmail.com</strong></p>\n    </div>\n  </div>\n\n  <div style=\"background-color: #4CAF50; padding: 15px; border-radius: 0 0 8px 8px; text-align: center;\">\n    <p style=\"color: white; margin: 0;\">Thank you for shopping with us! 🛍️</p>\n  </div>\n\n</div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        176,
+        0
+      ],
+      "id": "96e3cbc5-074d-44de-b96f-203b65613062",
+      "name": "Send a message",
+      "webhookId": "61c18c63-51cc-468e-b684-56c8f1c8341a",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "SgwyZH5pt7ejqqhw",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "minalkhadija1234@gamil.com",
+        "subject": "=🛍️ New Order from {{ $('Insert rows in a table').item.json.customer_name }}",
+        "message": "=<div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; border: 1px solid #ddd; border-radius: 10px;\">\n\n  <div style=\"background-color: #FF5722; padding: 20px; border-radius: 8px 8px 0 0; text-align: center;\">\n    <h1 style=\"color: white; margin: 0;\">🛍️ New Order Received!</h1>\n  </div>\n\n  <div style=\"padding: 20px;\">\n    <p style=\"font-size: 16px;\">Hi Admin, a new order has been placed!</p>\n\n    <table style=\"width: 100%; border-collapse: collapse; margin: 20px 0;\">\n      <tr style=\"background-color: #f2f2f2;\">\n        <td style=\"padding: 10px; border: 1px solid #ddd;\"><strong>Customer Name</strong></td>\n        <td style=\"padding: 10px; border: 1px solid #ddd;\">{{ $json.customer_name }}</td>\n      </tr>\n      <tr>\n        <td style=\"padding: 10px; border: 1px solid #ddd;\"><strong>Email</strong></td>\n        <td style=\"padding: 10px; border: 1px solid #ddd;\">{{ $json.email }}</td>\n      </tr>\n      <tr style=\"background-color: #f2f2f2;\">\n        <td style=\"padding: 10px; border: 1px solid #ddd;\"><strong>Phone</strong></td>\n        <td style=\"padding: 10px; border: 1px solid #ddd;\">{{ $json.phone }}</td>\n      </tr>\n      <tr>\n        <td style=\"padding: 10px; border: 1px solid #ddd;\"><strong>Product</strong></td>\n        <td style=\"padding: 10px; border: 1px solid #ddd;\">{{ $json.product_name }}</td>\n      </tr>\n      <tr style=\"background-color: #f2f2f2;\">\n        <td style=\"padding: 10px; border: 1px solid #ddd;\"><strong>Quantity</strong></td>\n        <td style=\"padding: 10px; border: 1px solid #ddd;\">{{ $json.quantity }}</td>\n      </tr>\n      <tr>\n        <td style=\"padding: 10px; border: 1px solid #ddd;\"><strong>Price per Item</strong></td>\n        <td style=\"padding: 10px; border: 1px solid #ddd;\">Rs. {{ $json.price_per_item }}</td>\n      </tr>\n      <tr style=\"background-color: #f2f2f2;\">\n        <td style=\"padding: 10px; border: 1px solid #ddd;\"><strong>Total Price</strong></td>\n        <td style=\"padding: 10px; border: 1px solid #ddd; color: #FF5722;\">\n          <strong>Rs. {{ $json.total_price }}</strong>\n        </td>\n      </tr>\n      <tr>\n        <td style=\"padding: 10px; border: 1px solid #ddd;\"><strong>Payment Method</strong></td>\n        <td style=\"padding: 10px; border: 1px solid #ddd;\">{{ $json.payment_method }}</td>\n      </tr>\n      <tr style=\"background-color: #f2f2f2;\">\n        <td style=\"padding: 10px; border: 1px solid #ddd;\"><strong>Shipping Address</strong></td>\n        <td style=\"padding: 10px; border: 1px solid #ddd;\">{{ $json.shipping_address }}</td>\n      </tr>\n      <tr>\n        <td style=\"padding: 10px; border: 1px solid #ddd;\"><strong>Order Date</strong></td>\n        <td style=\"padding: 10px; border: 1px solid #ddd;\">{{ $json.order_date }}</td>\n      </tr>\n    </table>\n\n    <div style=\"background-color: #fff3e0; padding: 15px; border-radius: 5px; margin-top: 20px; border-left: 4px solid #FF5722;\">\n      <p style=\"margin: 0; color: #555;\">⚡ Please process this order as soon as possible!</p>\n    </div>\n  </div>\n\n  <div style=\"background-color: #FF5722; padding: 15px; border-radius: 0 0 8px 8px; text-align: center;\">\n    <p style=\"color: white; margin: 0;\">Store Admin Panel 🔧</p>\n  </div>\n\n</div>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.2,
+      "position": [
+        432,
+        0
+      ],
+      "id": "b85d86d2-1589-4cce-bdd5-d2d37afe64e7",
+      "name": "Send a message1",
+      "webhookId": "1c9cc581-cce6-4f16-9562-0ed412c61e3a",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "SgwyZH5pt7ejqqhw",
+          "name": "Gmail OAuth2 API"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Insert rows in a table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert rows in a table": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Send a message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate"
+  },
+  "versionId": "fce9fa83-ff7f-45a5-921a-21ec97394d50",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "fbc00d114bbd1def22ade720b498f533e608d11288af8ee44a6bbc5d1988e16e"
+  },
+  "id": "ucqEs3AwjFSXHHCM",
+  "tags": []
+}
